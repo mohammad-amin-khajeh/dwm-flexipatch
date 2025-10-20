@@ -539,6 +539,7 @@ static const Rule rules[] = {
 	RULE(.class = "xterm-256color",        .isterminal = 1)
 	RULE(.class = "st-256color",           .isterminal = 1)
 	RULE(.class = "Telegram",              .tags = 1 << 2)
+	RULE(.class = "Anki",                  .tags = 1 << 5)
 	RULE(.class = "Throne",                .tags = 1 << 6)
 	#if RENAMED_SCRATCHPADS_PATCH
 	RULE(.instance = "spterm", .scratchkey = 's', .isfloating = 1)
