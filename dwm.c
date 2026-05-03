@@ -267,14 +267,14 @@ enum {
 #if IPC_PATCH
 typedef struct TagState TagState;
 struct TagState {
-       int selected;
-       int occupied;
-       int urgent;
+	int selected;
+	int occupied;
+	int urgent;
 };
 
 typedef struct ClientState ClientState;
 struct ClientState {
-       int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
+	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
 };
 #endif // IPC_PATCH
 
@@ -372,6 +372,9 @@ struct Client {
 	#if !FAKEFULLSCREEN_PATCH && FAKEFULLSCREEN_CLIENT_PATCH
 	int fakefullscreen;
 	#endif // FAKEFULLSCREEN_CLIENT_PATCH
+	#if GAMES_PATCH
+	int isgame;
+	#endif // GAMES_PATCH
 	#if EXRESIZE_PATCH
 	unsigned char expandmask;
 	int expandx1, expandy1, expandx2, expandy2;
@@ -588,6 +591,9 @@ typedef struct {
 	#if BORDER_RULE_PATCH
 	int bw;
 	#endif // BORDER_RULE_PATCH
+	#if GAMES_PATCH
+	int isgame;
+	#endif // GAMES_PATCH
 } Rule;
 
 #if BORDER_RULE_PATCH && XKB_PATCH
@@ -945,6 +951,9 @@ applyrules(Client *c)
 			#if SELECTIVEFAKEFULLSCREEN_PATCH && FAKEFULLSCREEN_CLIENT_PATCH && !FAKEFULLSCREEN_PATCH
 			c->fakefullscreen = r->isfakefullscreen;
 			#endif // SELECTIVEFAKEFULLSCREEN_PATCH
+			#if GAMES_PATCH
+			c->isgame = r->isgame;
+			#endif // GAMES_PATCH
 			#if SWALLOW_PATCH
 			c->isterminal = r->isterminal;
 			c->noswallow = r->noswallow;
@@ -1200,8 +1209,10 @@ buttonpress(XEvent *e)
 
 	if (c) {
 		#if FOCUSONCLICK_PATCH
-		if (focusonwheel || (ev->button != Button4 && ev->button != Button5))
+		if (focusonwheel || (ev->button != Button4 && ev->button != Button5)) {
 			focus(c);
+			restack(c->mon);
+		}
 		#else
 		focus(c);
 		restack(selmon);
@@ -1257,8 +1268,10 @@ buttonpress(XEvent *e)
 	#if !BANISH_PATCH
 	if (click == ClkRootWin && (c = wintoclient(ev->window))) {
 		#if FOCUSONCLICK_PATCH
-		if (focusonwheel || (ev->button != Button4 && ev->button != Button5))
+		if (focusonwheel || (ev->button != Button4 && ev->button != Button5)) {
 			focus(c);
+			restack(c->mon);
+		}
 		#else
 		focus(c);
 		restack(selmon);
@@ -1455,7 +1468,7 @@ clientmessage(XEvent *e)
 			/* use parents background color */
 			swa.background_pixel = scheme[SchemeNorm][ColBg].pixel;
 			XChangeWindowAttributes(dpy, c->win, CWBackPixel, &swa);
-			sendevent(c->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_EMBEDDED_NOTIFY, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
+			sendevent(c->win, xatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_EMBEDDED_NOTIFY, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
 			XSync(dpy, False);
 			setclientstate(c, NormalState);
 		}
@@ -2278,8 +2291,8 @@ focusstack(const Arg *arg)
 Atom
 getatomprop(Client *c, Atom prop, Atom req)
 {
-	int di;
-	unsigned long dl;
+	int format;
+	unsigned long nitems, dl;
 	unsigned char *p = NULL;
 	Atom da, atom = None;
 
@@ -2291,11 +2304,12 @@ getatomprop(Client *c, Atom prop, Atom req)
 	/* FIXME getatomprop should return the number of items and a pointer to
 	 * the stored data instead of this workaround */
 	if (XGetWindowProperty(dpy, c->win, prop, 0L, sizeof atom, False, req,
-		&da, &di, &dl, &dl, &p) == Success && p) {
-		atom = *(Atom *)p;
+		&da, &format, &nitems, &dl, &p) == Success && p) {
+		if (nitems > 0 && format == 32)
+			atom = *(long *)p;
 		#if BAR_SYSTRAY_PATCH
 		if (da == xatom[XembedInfo] && dl == 2)
-			atom = ((Atom *)p)[1];
+			atom = ((long *)p)[1];
 		#endif // BAR_SYSTRAY_PATCH
 		XFree(p);
 	}
@@ -2330,10 +2344,10 @@ getstate(Window w)
 	Atom real;
 
 	if (XGetWindowProperty(dpy, w, wmatom[WMState], 0L, 2L, False, wmatom[WMState],
-		&real, &format, &n, &extra, (unsigned char **)&p) != Success)
+		&real, &format, &n, &extra, &p) != Success)
 		return -1;
-	if (n != 0)
-		result = *p;
+	if (n != 0 && format == 32)
+		result = *(long *)p;
 	XFree(p);
 	return result;
 }
@@ -2784,7 +2798,7 @@ maprequest(XEvent *e)
 	#if BAR_SYSTRAY_PATCH
 	Client *i;
 	if (showsystray && systray && (i = wintosystrayicon(ev->window))) {
-		sendevent(i->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_WINDOW_ACTIVATE, 0, systray->win, XEMBED_EMBEDDED_VERSION);
+		sendevent(i->win, xatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_WINDOW_ACTIVATE, 0, systray->win, XEMBED_EMBEDDED_VERSION);
 		drawbarwin(systray->bar);
 	}
 	#endif // BAR_SYSTRAY_PATCH
@@ -3525,6 +3539,15 @@ sendmon(Client *c, Monitor *m)
 	attach(c);
 	#endif
 	attachstack(c);
+	#if !FAKEFULLSCREEN_PATCH
+	#if FAKEFULLSCREEN_CLIENT_PATCH
+	if (c->isfullscreen && c->fakefullscreen != 1)
+		resizeclient(c, m->mx, m->my, m->mw, m->mh);
+	#else
+	if (c->isfullscreen)
+		resizeclient(c, m->mx, m->my, m->mw, m->mh);
+	#endif // FAKEFULLSCREEN_CLIENT_PATCH
+	#endif // FAKEFULLSCREEN_PATCH
 	#if EXRESIZE_PATCH
 	if (oldm != m)
 		arrange(oldm);
@@ -3623,13 +3646,17 @@ setfocus(Client *c)
 {
 	if (!c->neverfocus) {
 		XSetInputFocus(dpy, c->win, RevertToPointerRoot, CurrentTime);
-		XChangeProperty(dpy, root, netatom[NetActiveWindow],
-			XA_WINDOW, 32, PropModeReplace,
-			(unsigned char *) &(c->win), 1);
 		#if XKB_PATCH
 		XkbLockGroup(dpy, XkbUseCoreKbd, c->xkb->group);
 		#endif // XKB_PATCH
 	}
+	XChangeProperty(dpy, root, netatom[NetActiveWindow], XA_WINDOW, 32,
+		PropModeReplace, (unsigned char *) &(c->win), 1);
+	#if GAMES_PATCH
+	if (c->isgame && c->isfullscreen)
+		unminimize(c);
+	#endif // GAMES_PATCH
+
 	#if BAR_SYSTRAY_PATCH
 	sendevent(c->win, wmatom[WMTakeFocus], NoEventMask, wmatom[WMTakeFocus], CurrentTime, 0, 0, 0);
 	#else
@@ -4561,9 +4588,18 @@ unfocus(Client *c, int setfocus, Client *nextfocus)
 {
 	if (!c)
 		return;
+
 	#if SWAPFOCUS_PATCH && PERTAG_PATCH
 	selmon->pertag->prevclient[selmon->pertag->curtag] = c;
 	#endif // SWAPFOCUS_PATCH
+	#if GAMES_PATCH
+	if (c->isgame && c->isfullscreen) {
+		minimize(c);
+	}
+	#endif // GAMES_PATCH
+	#if GAMES_PATCH && LOSEFULLSCREEN_PATCH
+	else
+	#endif // GAMES_PATCH | LOSEFULLSCREEN_PATCH
 	#if LOSEFULLSCREEN_PATCH
 	if (c->isfullscreen && ISVISIBLE(c) && c->mon == selmon && nextfocus && !nextfocus->isfloating) {
 		#if RENAMED_SCRATCHPADS_PATCH && RENAMED_SCRATCHPADS_AUTO_HIDE_PATCH
