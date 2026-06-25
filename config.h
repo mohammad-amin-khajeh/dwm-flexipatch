@@ -1415,11 +1415,11 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_KP_2,       explace,                {.ui = EX_S  }},   /* XK_KP_Down,  */
 	{ MODKEY,                       XK_KP_3,       explace,                {.ui = EX_SE }},   /* XK_KP_Next,  */
 
-	{ MODKEY|ShiftMask,             XK_KP_8,       exresize,               {.v = (int []){   0,  25 }}},  /* XK_KP_Up,    */
-	{ MODKEY|ShiftMask,             XK_KP_2,       exresize,               {.v = (int []){   0, -25 }}},  /* XK_KP_Down,  */
-	{ MODKEY|ShiftMask,             XK_KP_6,       exresize,               {.v = (int []){  25,   0 }}},  /* XK_KP_Right, */
-	{ MODKEY|ShiftMask,             XK_KP_4,       exresize,               {.v = (int []){ -25,   0 }}},  /* XK_KP_Left,  */
-	{ MODKEY|ShiftMask,             XK_KP_5,       exresize,               {.v = (int []){  25,  25 }}},  /* XK_KP_Begin, */
+	{ MODKEY|Mod1Mask,              XK_Up,         exresize,               {.v = (int []){   0,  90 }}},  /* XK_KP_Up,    */
+	{ MODKEY|Mod1Mask,              XK_Down,       exresize,               {.v = (int []){   0, -90 }}},  /* XK_KP_Down,  */
+	{ MODKEY|Mod1Mask,              XK_Right,      exresize,               {.v = (int []){  140,  0 }}},  /* XK_KP_Right, */
+	{ MODKEY|Mod1Mask,              XK_Left,       exresize,               {.v = (int []){ -140,  0 }}},  /* XK_KP_Left,  */
+	{ MODKEY|Mod1Mask,              XK_KP_5,       exresize,               {.v = (int []){  25,  25 }}},  /* XK_KP_Begin, */
 	{ MODKEY|ShiftMask|ControlMask, XK_KP_5,       exresize,               {.v = (int []){ -25, -25 }}},  /* XK_KP_Begin, */
 
 	{ MODKEY|ControlMask,           XK_KP_6,       togglehorizontalexpand, {.i = +1} },  /* XK_KP_Right, */
