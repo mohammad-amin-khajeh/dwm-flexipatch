@@ -446,9 +446,11 @@ static const char *const autostart[] = {
 static const char *scratchpadcmd[] = {"s", "st", "-n", "spterm", NULL};
 #elif SCRATCHPADS_PATCH
 const char *spcmd1[] = {"st", "-n", "spterm", "-g", "120x34", NULL };
+const char *qalccmd[] = {"qalculate-gtk", "--class", "qalcScratch", NULL };
 static Sp scratchpads[] = {
    /* name          cmd  */
    {"spterm",      spcmd1},
+   {"qalc",        qalccmd},
 };
 #endif // SCRATCHPADS_PATCH
 
@@ -537,7 +539,6 @@ static const Rule rules[] = {
 	RULE(.class = "termfilechooser",       .isfloating = 1)
 	RULE(.class = "Lxappearance",          .isfloating = 1)
 	RULE(.class = "termFloat",             .isfloating = 1)
-	RULE(.title = "qalcFloat",             .isfloating = 1)
 	RULE(.class = "xterm-256color",        .isterminal = 1)
 	RULE(.class = "st-256color",           .isterminal = 1)
 	RULE(.class = "Telegram",              .tags = 1 << 2)
@@ -547,6 +548,7 @@ static const Rule rules[] = {
 	RULE(.instance = "spterm", .scratchkey = 's', .isfloating = 1)
 	#elif SCRATCHPADS_PATCH
 	RULE(.instance = "spterm", .tags = SPTAG(0), .isfloating = 1)
+	RULE(.class = "qalcScratch", .tags = SPTAG(1), .isfloating = 1)
 	#endif // SCRATCHPADS_PATCH
 };
 
@@ -1301,6 +1303,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_grave,      removescratch,          {.v = scratchpadcmd } },
 	#elif SCRATCHPADS_PATCH
 	{ MODKEY,                       XK_grave,      togglescratch,          {.ui = 0 } },
+	{ MODKEY|Mod1Mask,              XK_c,          togglescratch,          {.ui = 1 } },
 	{ MODKEY|ShiftMask,             XK_grave,      setscratch,             {.ui = 0 } },
 	{ MODKEY|ControlMask,           XK_grave,      removescratch,          {.ui = 0 } },
 	#endif // SCRATCHPADS_PATCH | RENAMED_SCRATCHPADS_PATCH
