@@ -534,6 +534,7 @@ static const Rule rules[] = {
 	RULE(.wintype = WTYPE "TOOLBAR",       .isfloating = 1)
 	RULE(.wintype = WTYPE "SPLASH",        .isfloating = 1)
 	RULE(.title = "^Browse.*",             .isfloating = 1)
+	RULE(.class = "termfilechooser",       .isfloating = 1)
 	RULE(.class = "Lxappearance",          .isfloating = 1)
 	RULE(.class = "termFloat",             .isfloating = 1)
 	RULE(.title = "qalcFloat",             .isfloating = 1)
