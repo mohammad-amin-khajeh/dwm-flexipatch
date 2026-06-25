@@ -554,6 +554,7 @@ static const Rule rules[] = {
 static const MonitorRule monrules[] = {
 	/* monitor  tag   layout  mfact  nmaster  showbar  topbar */
 	{  1,       -1,    2,      -1,    -1,      -1,       -1     }, // use a different layout for the second monitor
+	{  0,        2,    2,      -1,    -1,      -1,       -1     },
 	{  0,        4,    2,      -1,    -1,      -1,       -1     },
 	{  0,        6,    2,      -1,    -1,      -1,       -1     },
 	{  0,        7,    2,      -1,    -1,      -1,       -1     },
