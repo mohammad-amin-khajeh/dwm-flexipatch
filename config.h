@@ -446,7 +446,7 @@ static const char *const autostart[] = {
 static const char *scratchpadcmd[] = {"s", "st", "-n", "spterm", NULL};
 #elif SCRATCHPADS_PATCH
 const char *spcmd1[] = {"st", "-n", "spterm", "-g", "120x34", NULL };
-const char *qalccmd[] = {"qalculate-gtk", "--class", "qalcScratch", NULL };
+const char *qalccmd[] = {"qalculate-gtk", "--class", "spqalc", NULL };
 static Sp scratchpads[] = {
    /* name          cmd  */
    {"spterm",      spcmd1},
@@ -548,7 +548,7 @@ static const Rule rules[] = {
 	RULE(.instance = "spterm", .scratchkey = 's', .isfloating = 1)
 	#elif SCRATCHPADS_PATCH
 	RULE(.instance = "spterm", .tags = SPTAG(0), .isfloating = 1)
-	RULE(.class = "qalcScratch", .tags = SPTAG(1), .isfloating = 1)
+	RULE(.class = "spqalc", .tags = SPTAG(1), .isfloating = 1)
 	#endif // SCRATCHPADS_PATCH
 };
 
