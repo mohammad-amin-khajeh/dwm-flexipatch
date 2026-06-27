@@ -359,7 +359,7 @@
  * and the bar will now overlay the display.
  * http://dwm.suckless.org/patches/holdbar/
  */
-#define BAR_HOLDBAR_PATCH 1
+#define BAR_HOLDBAR_PATCH 0
 
 /* Sometimes dwm crashes when it cannot render some glyphs in window titles (usually emoji).
  * This patch is essentially a hack to ignore any errors when drawing text on the status bar.
