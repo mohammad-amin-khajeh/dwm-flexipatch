@@ -951,7 +951,7 @@ static const char *statuscmd[] = { "/bin/sh", "-c", NULL, NULL };
 
 #if ON_EMPTY_KEYS_PATCH
 static const char* yazicmd[]      = {"st", "-e", "yazi", NULL};
-static const char* firefoxcmd[]   = {"firefox", NULL};
+static const char* chromiumcmd[]  = {"chromium", "--process-per-site", "--disable-top-sites", NULL};
 static const char* telegramcmd[]  = {"Telegram", NULL};
 static const char* tmuxcmd[]      = {"st", "-e", "launch_tmux.sh", NULL};
 static const char* ankicmd[]      = {"anki", NULL};
@@ -959,7 +959,7 @@ static const char* thronecmd[]    = {"throne", NULL};
 static const Key on_empty_keys[] = {
 	/* modifier key            function                argument */
 	{ MODKEY,   XK_e,          spawn,                  {.v = yazicmd } },
-	{ MODKEY,   XK_b,          spawn,                  {.v = firefoxcmd } },
+	{ MODKEY,   XK_b,          spawn,                  {.v = chromiumcmd } },
 	{ MODKEY,   XK_t,          spawn,                  {.v = telegramcmd } },
 	{ MODKEY,   XK_c,          spawn,                  {.v = tmuxcmd } },
 	{ MODKEY,   XK_a,          spawn,                  {.v = ankicmd } },
